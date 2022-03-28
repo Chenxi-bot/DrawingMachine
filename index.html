@@ -1,0 +1,202 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>抽奖机</title>
+    <script src="js/bootstrap.js"></script>
+    <link rel="stylesheet" href="css/bootstrap.css">
+    <style>
+        body {
+            background-color: azure;
+            height: 672px;
+            width: 3904px;
+        }
+
+        #main {
+            height: 672px;
+            width: 3904px;
+        }
+
+        .Pic>img {
+            height: 672px;
+        }
+
+        #Roll {
+            background-color: ivory;
+        }
+
+        #opt {
+            height: 20%;
+            width: auto;
+            background-color: antiquewhite;
+        }
+
+        #select>select {
+            margin-top: 6.5%;
+            font-size: 50px;
+        }
+
+        #settings>form {
+            margin-top: 2%;
+            font-size: 50px;
+        }
+
+        .luckyNumber {
+            font-size: 70px;
+            text-align: center;
+        }
+
+        #winRow {
+            width: auto;
+        }
+
+        #result {
+            width: auto;
+        }
+
+        #rollButton>Button {
+            font-size: 80px;
+        }
+
+        #randomNow {
+            font-size: 100px;
+            height: 300px;
+            line-height: 500px;
+            text-align: center;
+        }
+
+        #select {
+            font-size: 50px;
+        }
+    </style>
+</head>
+
+<body>
+    <!--分为三个部分，左边图片，抽奖机和右边图片-->
+    <div class="row" id="main">
+        <!--左边图片-->
+        <div class="offset-1 col-2 Pic" id="leftPic" align="center">
+            <img src="妹妹Q版.png" alt="Huo">
+        </div>
+        <!--中间抽奖机-->
+        <div class="col-6" id="Roll">
+            <!--分两行，第一行是选项类，第二行是操作和结果-->
+            <!--第一行是选择奖项和输入范围-->
+            <div id="opt" class="row">
+                <!--给观众看的，什么用都没有的奖项选择-->
+                <div id="select" class="col-3" align="center">
+                    奖项：
+                    <select>
+                        <option value="一等奖">一等奖</option>
+                        <option value="二等奖">二等奖</option>
+                        <option value="三等奖">三等奖</option>
+                    </select>
+                </div>
+                <!--输入门票范围-->
+                <div id="settings" class="offset-1 col-8">
+                    <form>
+                        &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 随机数生成范围：
+                        <input id="MaxNumber">
+                    </form>
+                </div>
+            </div>
+            <!--第二行是抽到的数字、当前随机数和操作内容-->
+            <div id="result" class="row">
+                <!--抽到的数字，只有五个，多了之后会刷新-->
+                <div class="col-3" id="win">
+                    <div class="row" id="winRow">
+                        <div class="col-12 luckyNumber" id="0">?</div>
+                        <div class="col-12 luckyNumber" id="1">?</div>
+                        <div class="col-12 luckyNumber" id="2">?</div>
+                        <div class="col-12 luckyNumber" id="3">?</div>
+                        <div class="col-12 luckyNumber" id="4">?</div>
+                    </div>
+                </div>
+                <!--当前随机数-->
+                <div class="col-6" id="now">
+                    <p id="randomNow">怎么回事呢？</p>
+                </div>
+                <!--可操作内容-->
+                <div class="col-3" id="rollButton" align="center">
+                    <br><br>
+                    <button class="btn btn-light" id="start">开始黑幕</button>
+                    <br><br>
+                    <button class="btn btn-light" id="stop">停止黑幕</button>
+                    <br><br>
+                    <button class="btn btn-light" id="undo">撤销</button>
+                </div>
+            </div>
+        </div>
+        <!--右边图片-->
+        <div class="col-2 Pic" id="rightPic" align="center">
+            <img src="姐姐Q版.png" alt="Yuan">
+        </div>
+    </div>
+</body>
+<script>
+    function randomNum(minNum, maxNum) { // 随机数生成，复制的
+        switch (arguments.length) {
+            case 1:
+                return parseInt(Math.random() * minNum + 1, 10);
+                break;
+            case 2:
+                return parseInt(Math.random() * (maxNum - minNum + 1) + minNum, 10);
+                break;
+            default:
+                return 0;
+                break;
+        }
+    }
+    function fresh() { // 刷新当前随机数
+        var randint = randomNum(1, document.getElementById("MaxNumber").value);
+        document.getElementById("randomNow").innerHTML = randint;
+    }
+    var id = null;
+    var ptr = 0;
+    document.getElementById("start").onclick =
+        function () {
+            if (id != null)
+                clearInterval(id);
+            var maxNumber = document.getElementById("MaxNumber").value;
+            if (maxNumber == "") {
+                window.alert("请输入范围");
+                return;
+            }
+            document.getElementById("randomNow").innerHTML = randomNum(0, maxNumber);
+
+            var test = 0;
+            id = setInterval(fresh, 10);
+        }
+    var ids = ["0", "1", "2", "3", "4"]; // 不太懂js的类型转换，只好写了一个映射hhh
+    document.getElementById("stop").onclick =
+        function () {
+            clearInterval(id); // 结束当前的刷新
+            for (i = 0; i < 5; i++) { // 寻找没有被占用的行，找到后退出函数
+                if (document.getElementById(ids[i]).innerHTML == "?") {
+                    document.getElementById(ids[i]).innerHTML = document.getElementById("randomNow").innerHTML;
+                    return;
+                }
+            }
+            for (i = 0; i < 5; i++) { // 如果全部占用，则刷新全部行变为"?"
+                document.getElementById(ids[i]).innerHTML = "?";
+            }
+            for (i = 0; i < 5; i++) { // 再次查找未占用
+                if (document.getElementById(ids[i]).innerHTML == "?") {
+                    document.getElementById(ids[i]).innerHTML = document.getElementById("randomNow").innerHTML;
+                    return;
+                }
+            }
+        }
+    document.getElementById("undo").onclick =
+        function () { // 删除最后一个占用，简单粗暴
+            for (i = 4; i > -1; i--) {
+                if (document.getElementById(ids[i]).innerHTML != "?") {
+                    document.getElementById(ids[i]).innerHTML = "?";
+                    return;
+                }
+            }
+        }
+</script>
+
+</html>
